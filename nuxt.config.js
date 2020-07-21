@@ -85,7 +85,6 @@ export default {
   build: {
   },
   serverMiddleware: [
-    { path: '/api/get', handler: '~/api/messenger-webhook.js' },
-    { path: '/api/post', handler: '~/api/messenger-webhook.js' }
+    '~/api/ms-webhook.js'
   ]
 }
