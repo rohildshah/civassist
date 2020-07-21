@@ -83,5 +83,9 @@ export default {
   ** See https://nuxtjs.org/api/configuration-build/
   */
   build: {
-  }
+  },
+  serverMiddleware: [
+    { path: '/api/get', handler: '~/api/messenger-webhook.js' },
+    { path: '/api/post', handler: '~/api/messenger-webhook.js' }
+  ]
 }
