@@ -82,8 +82,6 @@ export default {
   ** Build configuration
   ** See https://nuxtjs.org/api/configuration-build/
   */
-  srcDir: '../src',
-  buildDir: '../functions/.nuxt',
   build: {
   }
 }
