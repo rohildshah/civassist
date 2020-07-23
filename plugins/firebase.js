@@ -2,6 +2,7 @@
 import * as firebase from "firebase/app"
 import "firebase/auth"
 import "firebase/firestore"
+import Vue from "Vue"
 
 const config = {
   apiKey: "AIzaSyCKbckfbi7xKdG7Q368tdHflPYxpMiDcHM",
@@ -18,5 +19,6 @@ if (!firebase.apps.length) {
   firebase.initializeApp(config)
 }
 
-const fireDB = firebase.firestore()
-export { fireDB }
+const db = firebase.firestore()
+
+export default db

@@ -1,5 +1,6 @@
 module.exports = {
   root: true,
+  lintOnSave: false,
   env: {
     browser: true,
     node: true
@@ -15,6 +16,11 @@ module.exports = {
   ],
   // add your custom rules here
   rules: {
-    quotes: [2, "double", "avoid-escape"]
-  }
+    "quotes": [2, "double", "avoid-escape"],
+    "space-before-function-paren": ['error', {
+      anonymous: 'always',
+      named: 'never',
+      asyncArrow: 'always'
+    }]
+  },
 }

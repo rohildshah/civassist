@@ -1,85 +1,41 @@
+<!-- eslint-disable -->
 <template>
-  <v-layout
-    column
-    justify-center
-    align-center
-  >
-    <v-flex
-      xs12
-      sm8
-      md6
-    >
-      <!-- <div class="text-center">
-        <logo />
-        <vuetify-logo />
-      </div>
-      <v-card>
-        <v-card-title class="headline">
-          Welcome to the Vuetify + Nuxt.js template
-        </v-card-title>
-        <v-card-text>
-          <p>Vuetify is a progressive Material Design component framework for Vue.js. It was designed to empower developers to create amazing applications.</p>
-          <p>
-            For more information on Vuetify, check out the <a
-              href="https://vuetifyjs.com"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              documentation
-            </a>.
-          </p>
-          <p>
-            If you have questions, please join the official <a
-              href="https://chat.vuetifyjs.com/"
-              target="_blank"
-              rel="noopener noreferrer"
-              title="chat"
-            >
-              discord
-            </a>.
-          </p>
-          <p>
-            Find a bug? Report it on the github <a
-              href="https://github.com/vuetifyjs/vuetify/issues"
-              target="_blank"
-              rel="noopener noreferrer"
-              title="contribute"
-            >
-              issue board
-            </a>.
-          </p>
-          <p>Thank you for developing with Vuetify and I look forward to bringing more exciting features in the future.</p>
-          <div class="text-xs-right">
-            <em><small>&mdash; John Leider</small></em>
-          </div>
-          <hr class="my-3">
-          <a
-            href="https://nuxtjs.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Nuxt Documentation
-          </a>
-          <br>
-          <a
-            href="https://github.com/nuxt/nuxt.js"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Nuxt GitHub
-          </a>
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer />
-          <v-btn
-            color="primary"
-            nuxt
-            to="/inspire"
-          >
-            Continue
-          </v-btn>
-        </v-card-actions>
-      </v-card> -->
+  <v-layout column justify-center align-center>
+    <v-flex xs12 sm8 md6>
+      <v-toolbar dense>
+        <v-app-bar-nav-icon></v-app-bar-nav-icon>
+
+        <v-toolbar-title>Title</v-toolbar-title>
+
+        <v-spacer></v-spacer>
+
+        <v-btn icon>
+          <v-icon>mdi-magnify</v-icon>
+        </v-btn>
+        <v-dialog v-model="isSignUpModalActive" width="600">
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn color="red lighten-2" dark v-bind="attrs" v-on="on">Sign Up</v-btn>
+          </template>
+          <v-card>
+            <v-card-title class="headline grey lighten-2">Sign Up</v-card-title>
+
+            <v-form class="px-6 py-6" ref="form" v-model="valid" lazy-validation>
+              <v-text-field v-model="name" :counter="10" :rules="nameRules" label="Name" required></v-text-field>
+
+              <v-text-field v-model="email" :rules="emailRules" label="Email" required></v-text-field>
+
+              <v-text-field v-model="password" :rules="passwordRules" label="Password" required></v-text-field>
+            </v-form>
+
+            <v-divider></v-divider>
+
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="primary" text @click="createAccount(), isSignUpModalActive = false">Sign Up</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+      </v-toolbar>
       <section id="hero">
         <v-row no-gutters>
           <v-img
@@ -88,40 +44,22 @@
           >
             <v-theme-provider dark>
               <v-container fill-height>
-                <v-row
-                  align="center"
-                  class="white--text mx-auto"
-                  justify="center"
-                >
-                  <v-col
-                    class="white--text text-center"
-                    cols="12"
-                    tag="h1"
-                  >
+                <v-row align="center" class="white--text mx-auto" justify="center">
+                  <v-col class="white--text text-center" cols="12" tag="h1">
                     <span
-                    :class="[$vuetify.breakpoint.smAndDown ? 'display-1' : 'display-2']"
+                      :class="[$vuetify.breakpoint.smAndDown ? 'display-1' : 'display-2']"
                       class="font-weight-light"
-                    >
-                      WELCOME TO
-                    </span>
+                    >WELCOME TO</span>
 
-                    <br>
+                    <br />
 
                     <span
                       :class="[$vuetify.breakpoint.smAndDown ? 'display-3': 'display-4']"
                       class="font-weight-black"
-                    >
-                      VUETIFY
-                    </span>
-
+                    >CIVASSIST</span>
                   </v-col>
 
-                  <v-btn
-                    class="align-self-end"
-                    fab
-                    outlined
-                    @click="$vuetify.goTo('#about-me')"
-                  >
+                  <v-btn class="align-self-end" fab outlined @click="$vuetify.goTo('#about-me')">
                     <v-icon>mdi-chevron-double-down</v-icon>
                   </v-btn>
                 </v-row>
@@ -137,10 +75,7 @@
         <v-container class="text-center">
           <h2 class="display-2 font-weight-bold mb-3">ABOUT ME</h2>
 
-          <v-responsive
-            class="mx-auto mb-8"
-            width="56"
-          >
+          <v-responsive class="mx-auto mb-8" width="56">
             <v-divider class="mb-1"></v-divider>
 
             <v-divider></v-divider>
@@ -149,193 +84,37 @@
           <v-responsive
             class="mx-auto title font-weight-light mb-8"
             max-width="720"
-          >
-            Vuetify is the #1 component library for Vue.js and has been in active development since 2016. The goal of the project is to provide users with everything that is needed to build rich and engaging web applications using the Material Design specification. It accomplishes that with a consistent update cycle, Long-term Support (LTS) for previous versions, responsive community engagement, a vast ecosystem of resources and a dedication to quality components.
-          </v-responsive>
+          >Vuetify is the #1 component library for Vue.js and has been in active development since 2016. The goal of the project is to provide users with everything that is needed to build rich and engaging web applications using the Material Design specification. It accomplishes that with a consistent update cycle, Long-term Support (LTS) for previous versions, responsive community engagement, a vast ecosystem of resources and a dedication to quality components.</v-responsive>
 
-          <v-avatar
-            class="elevation-12 mb-12"
-            size="128"
-          >
+          <v-avatar class="elevation-12 mb-12" size="128">
             <v-img src="https://cdn.vuetifyjs.com/images/john.png"></v-img>
           </v-avatar>
 
           <div></div>
 
-          <v-btn
-            color="grey"
-            href="https://vuetifyjs.com"
-            outlined
-            large
-          >
-            <span class="grey--text text--darken-1 font-weight-bold">
-              Vuetify Documentation
-            </span>
+          <v-btn color="grey" href="https://vuetifyjs.com" outlined large>
+            <span class="grey--text text--darken-1 font-weight-bold">Vuetify Documentation</span>
           </v-btn>
         </v-container>
 
         <div class="py-12"></div>
       </section>
 
-      <section id="stats">
+      <section>
         <v-parallax
           :height="$vuetify.breakpoint.smAndDown ? 700 : 500"
           src="https://images.unsplash.com/photo-1510915228340-29c85a43dcfe?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1950&q=80"
         >
-          <v-container fill-height>
-            <v-row class="mx-auto">
-              <v-col
-                v-for="[value, title] of stats"
-                :key="title"
-                cols="12"
-                md="3"
-              >
-                <div class="text-center">
-                  <div
-                    class="display-3 font-weight-black mb-4"
-                    v-text="value"
-                  ></div>
-
-                  <div
-                    class="title font-weight-regular text-uppercase"
-                    v-text="title"
-                  ></div>
-                </div>
-              </v-col>
-            </v-row>
-          </v-container>
         </v-parallax>
       </section>
-
-      <section id="blog">
-        <div class="py-12"></div>
-
-        <v-container>
-          <h2 class="display-2 font-weight-bold mb-3 text-uppercase text-center">Blog</h2>
-
-          <v-responsive
-            class="mx-auto mb-12"
-            width="56"
-          >
-            <v-divider class="mb-1"></v-divider>
-
-            <v-divider></v-divider>
-          </v-responsive>
-
-          <v-row>
-            <v-col
-              v-for="({ src, text, title }, i) in articles"
-              :key="i"
-              cols="12"
-              md="4"
-            >
-              <v-img
-                :src="src"
-                class="mb-4"
-                height="275"
-                max-width="100%"
-              ></v-img>
-
-              <h3
-                class="font-weight-black mb-4 text-uppercase"
-                v-text="title"
-              ></h3>
-
-              <div
-                class="title font-weight-light mb-5"
-                v-text="text"
-              ></div>
-
-              <v-btn
-                class="ml-n4 font-weight-black"
-                text
-              >
-                Continue Reading
-              </v-btn>
-            </v-col>
-          </v-row>
-        </v-container>
-
-        <div class="py-12"></div>
-      </section>
-
-      <v-sheet
-        id="contact"
-        color="#333333"
-        dark
-        tag="section"
-        tile
-      >
-        <div class="py-12"></div>
-
-        <v-container>
-          <h2 class="display-2 font-weight-bold mb-3 text-uppercase text-center">Contact Me</h2>
-
-          <v-responsive
-            class="mx-auto mb-12"
-            width="56"
-          >
-            <v-divider class="mb-1"></v-divider>
-
-            <v-divider></v-divider>
-          </v-responsive>
-
-          <v-theme-provider light>
-            <v-row>
-              <v-col cols="12">
-                <v-text-field
-                  flat
-                  label="Name*"
-                  solo
-                ></v-text-field>
-              </v-col>
-
-              <v-col cols="12">
-                <v-text-field
-                  flat
-                  label="Email*"
-                  solo
-                ></v-text-field>
-              </v-col>
-
-              <v-col cols="12">
-                <v-text-field
-                  flat
-                  label="Subject*"
-                  solo
-                ></v-text-field>
-              </v-col>
-
-              <v-col cols="12">
-                <v-textarea
-                  flat
-                  label="Message*"
-                  solo
-                ></v-textarea>
-              </v-col>
-
-              <v-col
-                class="mx-auto"
-                cols="auto"
-              >
-                <v-btn
-                  color="accent"
-                  x-large
-                >
-                  Submit
-                </v-btn>
-              </v-col>
-            </v-row>
-          </v-theme-provider>
-        </v-container>
-
-        <div class="py-12"></div>
-      </v-sheet>
     </v-flex>
   </v-layout>
 </template>
 
 <script>
+import * as firebase from "firebase/app"
+import "firebase/auth"
+import db from "../plugins/firebase"
 // import Logo from '~/components/Logo.vue'
 // import VuetifyLogo from '~/components/VuetifyLogo.vue'
 
@@ -345,4 +124,44 @@
 //     VuetifyLogo
 //   }
 // }
+export default {
+  data () {
+    return {
+      isSignUpModalActive: false,
+      isLoginModalActive: false,
+      valid: true,
+      name: "",
+      nameRules: [
+        v => !!v || "Name is required"
+      ],
+      email: "",
+      emailRules: [
+        v => !!v || "Email is required",
+        v => /.+@.+\..+/.test(v) || "Email must be valid"
+      ],
+      password: "",
+      passwordRules: [
+        v => !!v || "Password is required",
+        v => (v && v.length >= 8) || "Password must be at least 8 characters long"
+      ]
+    }
+  },
+  methods: {
+    async createAccount () {
+      firebase.auth().createUserWithEmailAndPassword(this.email, this.password)
+      this.isSignUpModalActive = false
+      await db.collection("users").add({
+        name: this.name,
+        email: this.email,
+      })
+    },
+    login () {
+      firebase
+        .auth()
+        .signInWithEmailAndPassword(this.email, this.password)
+        .catch(error => alert(error))
+      this.isLoginModalActive = false
+    }
+  }
+}
 </script>
