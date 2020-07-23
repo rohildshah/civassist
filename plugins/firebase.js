@@ -2,7 +2,6 @@
 import * as firebase from "firebase/app"
 import "firebase/auth"
 import "firebase/firestore"
-import Vue from "Vue"
 
 const config = {
   apiKey: "AIzaSyCKbckfbi7xKdG7Q368tdHflPYxpMiDcHM",
