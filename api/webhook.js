@@ -111,7 +111,7 @@ function handlePostback(sender_psid, received_postback) {
               "buttons": [
                 {
                   "type": "postback",
-                  "title": "Sign In",
+                  "title": "Sign Up",
                   "payload": "sign",
                 },
                 {
@@ -126,8 +126,60 @@ function handlePostback(sender_psid, received_postback) {
       }
       break;
     case 'sign':
+      response = {
+        "attachment": {
+          "type": "template",
+          "payload": {
+            "template_type": "button",
+            "text": "Create a new acount with",
+            "buttons": [
+              {
+                "type": "web_url",
+                "url": "https://www.facebook.com",
+                "title": "Facebook"
+              },
+              {
+                "type": "web_url",
+                "url": "https://www.google.com",
+                "title": "Google"
+              },
+              {
+                "type": "web_url",
+                "url": "https://mail.google.com",
+                "title": "Email"
+              },
+            ]
+          }
+        }
+      }
       break;
     case 'log':
+      response = {
+        "attachment": {
+          "type": "template",
+          "payload": {
+            "template_type": "button",
+            "text": "Log in to an existing account with",
+            "buttons": [
+              {
+                "type": "web_url",
+                "url": "https://www.facebook.com",
+                "title": "Facebook"
+              },
+              {
+                "type": "web_url",
+                "url": "https://www.google.com",
+                "title": "Google"
+              },
+              {
+                "type": "web_url",
+                "url": "https://mail.google.com",
+                "title": "Email"
+              },
+            ]
+          }
+        }
+      }
       break;
   }
   // Send the message to acknowledge the postback
