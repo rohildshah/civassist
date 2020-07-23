@@ -20,6 +20,7 @@
     "firebase": "^7.16.1",
     "firebase-admin": "^9.0.0",
     "nuxt": "^2.13.0",
+    "pg": "^8.3.0",
     "raw-body": "^2.4.1",
     "request": "^2.88.2"
   },

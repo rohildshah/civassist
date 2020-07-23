@@ -85,6 +85,6 @@ export default {
   build: {
   },
   serverMiddleware: [
-    '~/api/ms-webhook.js'
+    '~/api/webhook.js'
   ]
 }
