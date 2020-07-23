@@ -78,44 +78,17 @@ function handleMessage(sender_psid, received_message) {
 
   // Check if message has text
   if (text) {
-
-    // Create text message
     response = {
-      "text": `You sent the message: "${text}". Now send me an image!`
+      "text": `You sent the message: "${text}". Direct messaging is not supported at this time.`
     }
+
   } else if (attachment) {
-
-    // Gets URL of msg attachment
-    let attachment_url = attachment[0].payload.url;
-
     response = {
-      "attachment": {
-        "type": "template",
-        "payload": {
-          "template_type": "generic",
-          "elements": [{
-            "title": "Is this the right picture?",
-            "subtitle": "Tap a button to answer.",
-            "image_url": attachment_url,
-            "buttons": [
-              {
-                "type": "postback",
-                "title": "Yes!",
-                "payload": "yes",
-              },
-              {
-                "type": "postback",
-                "title": "No!",
-                "payload": "no"
-              }
-            ],
-          }]
-        }
-      }
+      "text": "Please do not send attachments."
     }
   }
 
-  // Sends response
+  // Send response
   callSendAPI(sender_psid, response);
 }
 
@@ -124,10 +97,38 @@ function handlePostback(sender_psid, received_postback) {
   let payload = received_postback.payload;
 
   // Set the response based on the postback payload
-  if (payload === 'yes') {
-    response = { "text": "Thanks!" }
-  } else if (payload === 'no') {
-    response = { "text": "Oops, try sending another image." }
+  switch (payload) {
+    case 'get-started':
+      response = {
+        "attachment": {
+          "type": "template",
+          "payload": {
+            "template_type": "generic",
+            "elements": [{
+              "title": "Welcome to CivAssist!",
+              "subtitle": "Tap a button to continue",
+              "image_url": "https://civic-hacks.herokuapp.com/static/civassist.png",
+              "buttons": [
+                {
+                  "type": "postback",
+                  "title": "Sign In",
+                  "payload": "sign",
+                },
+                {
+                  "type": "postback",
+                  "title": "Log In",
+                  "payload": "log"
+                }
+              ],
+            }]
+          }
+        }
+      }
+      break;
+    case 'sign':
+      break;
+    case 'log':
+      break;
   }
   // Send the message to acknowledge the postback
   callSendAPI(sender_psid, response);
