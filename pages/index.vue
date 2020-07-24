@@ -9,9 +9,8 @@
 
         <v-spacer></v-spacer>
 
-        <v-btn icon>
-          <v-icon>mdi-magnify</v-icon>
-        </v-btn>
+        <v-btn color="primary" text @click="signOut()">Log Out</v-btn>
+
         <v-dialog v-model="isSignUpModalActive" width="600">
           <template v-slot:activator="{ on, attrs }">
             <v-btn color="red lighten-2" dark v-bind="attrs" v-on="on">Sign Up</v-btn>
@@ -20,18 +19,46 @@
             <v-card-title class="headline grey lighten-2">Sign Up</v-card-title>
 
             <v-form class="px-6 py-6" ref="form" v-model="valid" lazy-validation>
-              <v-text-field v-model="name" :counter="10" :rules="nameRules" label="Name" required></v-text-field>
+              <v-text-field v-model="account.name" :counter="10" :rules="nameRules" label="Name" required></v-text-field>
 
-              <v-text-field v-model="email" :rules="emailRules" label="Email" required></v-text-field>
+              <v-text-field v-model="account.email" :rules="emailRules" label="Email" required></v-text-field>
 
-              <v-text-field v-model="password" :rules="passwordRules" label="Password" required></v-text-field>
+              <v-text-field v-model="account.password" :rules="passwordRules" label="Password" required></v-text-field>
             </v-form>
 
             <v-divider></v-divider>
 
             <v-card-actions>
               <v-spacer></v-spacer>
-              <v-btn color="primary" text @click="createAccount(), isSignUpModalActive = false">Sign Up</v-btn>
+              <v-btn color="primary" text @click="google(), isSignUpModalActive = false">Sign Up With Google</v-btn>
+              <v-btn color="primary" text @click="facebook(), isSignUpModalActive = false">Sign Up With Facebook</v-btn>
+              <v-btn color="primary" text @click="createAccount(), isSignUpModalActive = false">Sign Up With Email</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+
+        <v-dialog v-model="isLoginModalActive" width="600">
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn color="red lighten-2" dark v-bind="attrs" v-on="on">Log In</v-btn>
+          </template>
+          <v-card>
+            <v-card-title class="headline grey lighten-2">Log In</v-card-title>
+
+            <v-form class="px-6 py-6" ref="form" v-model="valid" lazy-validation>
+              <v-text-field v-model="account.name" :counter="10" :rules="nameRules" label="Name" required></v-text-field>
+
+              <v-text-field v-model="account.email" :rules="emailRules" label="Email" required></v-text-field>
+
+              <v-text-field v-model="account.password" :rules="passwordRules" label="Password" required></v-text-field>
+            </v-form>
+
+            <v-divider></v-divider>
+
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="primary" text @click="google(), isLoginModalActive = false">Log in With Google</v-btn>
+              <v-btn color="primary" text @click="facebook(), isLoginModalActive = false">Log in With Facebook</v-btn>
+              <v-btn color="primary" text @click="login(), isLoginModalActive = false">Log in With Email</v-btn>
             </v-card-actions>
           </v-card>
         </v-dialog>
@@ -115,31 +142,24 @@
 import * as firebase from "firebase/app"
 import "firebase/auth"
 import db from "../plugins/firebase"
-// import Logo from '~/components/Logo.vue'
-// import VuetifyLogo from '~/components/VuetifyLogo.vue'
-
-// export default {
-//   components: {
-//     Logo,
-//     VuetifyLogo
-//   }
-// }
 export default {
   data () {
     return {
       isSignUpModalActive: false,
       isLoginModalActive: false,
       valid: true,
-      name: "",
+      account: {
+        name: "",
+        email: "",
+        password: ""
+      },
       nameRules: [
         v => !!v || "Name is required"
       ],
-      email: "",
       emailRules: [
         v => !!v || "Email is required",
         v => /.+@.+\..+/.test(v) || "Email must be valid"
       ],
-      password: "",
       passwordRules: [
         v => !!v || "Password is required",
         v => (v && v.length >= 8) || "Password must be at least 8 characters long"
@@ -148,20 +168,56 @@ export default {
   },
   methods: {
     async createAccount () {
-      firebase.auth().createUserWithEmailAndPassword(this.email, this.password)
-      this.isSignUpModalActive = false
-      await db.collection("users").add({
-        name: this.name,
-        email: this.email,
+      var self = this
+      this.$store.dispatch("users/signup", this.account).then(async function() {
+        await db.collection("users").add({
+          name: self.account.name,
+          email: self.account.email,
+        })
       })
     },
     login () {
-      firebase
-        .auth()
-        .signInWithEmailAndPassword(this.email, this.password)
-        .catch(error => alert(error))
-      this.isLoginModalActive = false
-    }
+      this.$store.dispatch("users/login", this.account)
+      this.$router.push("/admin/Dashboard")
+    },
+    async facebook() {
+      var provider = new firebase.auth.FacebookAuthProvider();
+      firebase.auth().signInWithPopup(provider).then(function(result) {
+        // This gives you a Facebook Access Token. You can use it to access the Facebook API.
+        var token = result.credential.accessToken;
+        // The signed-in user info.
+        var user = result.user;
+        // ...
+      }).catch(function(error) {
+        // Handle Errors here.
+        var errorCode = error.code;
+        var errorMessage = error.message;
+        // The email of the user's account used.
+        var email = error.email;
+        // The firebase.auth.AuthCredential type that was used.
+        var credential = error.credential;
+        // ...
+      })
+    },
+    async google() {
+      var provider = new firebase.auth.GoogleAuthProvider();
+      firebase.auth().signInWithPopup(provider).then(function(result) {
+        // This gives you a Google Access Token. You can use it to access the Google API.
+        var token = result.credential.accessToken;
+        // The signed-in user info.
+        var user = result.user;
+        // ...
+      }).catch(function(error) {
+        // Handle Errors here.
+        var errorCode = error.code;
+        var errorMessage = error.message;
+        // The email of the user's account used.
+        var email = error.email;
+        // The firebase.auth.AuthCredential type that was used.
+        var credential = error.credential;
+        // ...
+      });
+    },
   }
 }
 </script>

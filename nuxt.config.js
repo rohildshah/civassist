@@ -37,8 +37,19 @@ export default {
   ** https://nuxtjs.org/guide/plugins
   */
   plugins: [
-    '~/plugins/firebase.js'
+    '~/plugins/firebase.js',
+    '~/plugins/chartist.js',
+    // '~/plugins/vuetify.js'
   ],
+  /*
+  ** Router settings
+  */
+  router: {
+    middleware: ["authenticated"],
+    routes: [
+
+    ]
+  },
   /*
   ** Auto import components
   ** See https://nuxtjs.org/api/configuration-components
