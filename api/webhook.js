@@ -107,7 +107,7 @@ function handlePostback(sender_psid, received_postback) {
             "elements": [{
               "title": "Welcome to CivAssist!",
               "subtitle": "Tap a button to continue",
-              "image_url": "https://civic-hacks.herokuapp.com/static/civassist.png",
+              "image_url": "https://i.ibb.co/26sn6MG/civassist.png",
               "buttons": [
                 {
                   "type": "postback",
