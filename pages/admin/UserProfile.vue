@@ -9,7 +9,7 @@
         cols="12"
         md="8"
       >
-        <base-material-card>
+        <material-card>
           <template v-slot:heading>
             <div class="display-2 font-weight-light">
               Edit Profile
@@ -133,14 +133,14 @@
               </v-row>
             </v-container>
           </v-form>
-        </base-material-card>
+        </material-card>
       </v-col>
 
       <v-col
         cols="12"
         md="4"
       >
-        <base-material-card
+        <material-card
           class="v-card-profile"
           avatar="https://demos.creative-tim.com/vue-material-dashboard/img/marc.aba54d65.jpg"
         >
@@ -165,7 +165,7 @@
               Follow
             </v-btn>
           </v-card-text>
-        </base-material-card>
+        </material-card>
       </v-col>
     </v-row>
   </v-container>

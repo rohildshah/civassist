@@ -39,7 +39,7 @@ export default {
   plugins: [
     // '~/plugins/firebase.js',
     '~/plugins/chartist.js',
-    // '~/plugins/vuetify.js'
+    '~/plugins/vuetify.js'
   ],
   /*
   ** Router settings

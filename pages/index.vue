@@ -141,7 +141,6 @@
 <script>
 import * as firebase from "firebase/app"
 import "firebase/auth"
-import db from "../plugins/firebase"
 export default {
   data () {
     return {
@@ -168,13 +167,7 @@ export default {
   },
   methods: {
     async createAccount () {
-      var self = this
-      this.$store.dispatch("users/signup", this.account).then(async function() {
-        await db.collection("users").add({
-          name: self.account.name,
-          email: self.account.email,
-        })
-      })
+      this.$store.dispatch("users/signup", this.account)
     },
     login () {
       this.$store.dispatch("users/login", this.account)

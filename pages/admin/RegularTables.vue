@@ -4,11 +4,6 @@
     fluid
     tag="section"
   >
-    <v-component
-      heading="Simple Tables"
-      link="components/simple-tables"
-    />
-
     <material-card
       icon="mdi-clipboard-text"
       title="Simple Table"

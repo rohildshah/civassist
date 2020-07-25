@@ -98,21 +98,21 @@
       items: [
         {
           icon: 'mdi-view-dashboard',
-          title: 'dashboard',
+          title: 'Dashboard',
           to: '/admin/Dashboard',
         },
         {
           icon: 'mdi-account',
-          title: 'user',
+          title: 'Profile',
           to: '/admin/UserProfile',
         },
         {
-          title: 'rtables',
+          title: 'Tables',
           icon: 'mdi-clipboard-outline',
           to: '/admin/RegularTables',
         },
         {
-          title: 'google',
+          title: 'Maps',
           icon: 'mdi-map-marker',
           to: '/admin/GoogleMaps',
         },

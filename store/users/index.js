@@ -1,4 +1,5 @@
 import { auth } from "@/services/firebase"
+import { db } from "@/services/firebase";
 export const state = () => ({
   user: null
 });
@@ -23,6 +24,11 @@ export const actions = {
     console.log(account.email)
     await auth.createUserWithEmailAndPassword(account.email, account.password)
     const { email, uid } = auth.currentUser
+    await db.collection("users").add({
+      name: account.name,
+      email: email,
+      uid: uid
+    })
 
     commit('SET_USER', { email, uid })
   }
