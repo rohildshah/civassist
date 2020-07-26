@@ -7,11 +7,12 @@
 </template>
 
 <script>
-  export default {
-    name: 'DashboardCoreView',
+import DashboardCoreFooter from './Footer'
+export default {
+  name: 'DashboardCoreView',
 
-    components: {
-      DashboardCoreFooter: () => import('./Footer'),
-    },
-  }
+  components: {
+    DashboardCoreFooter
+  },
+}
 </script>

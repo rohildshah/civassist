@@ -1,5 +1,5 @@
 <template>
-  <v-app>
+  <v-app dark>
     <dashboard-core-app-bar />
 
     <dashboard-core-drawer />
@@ -11,16 +11,14 @@
 <script>
 import DashboardCoreAppBar from '@/components/AppBar'
 import DashboardCoreView from '@/components/View'
-  export default {
-    components: {
-      DashboardCoreAppBar,
-      DashboardCoreDrawer: () => import('@/components/Drawer'),
-      DashboardCoreView
-      // DashboardCoreView: () => import('@/components/View'),
-    },
-
-    data: () => ({
-      expandOnHover: false,
-    }),
-  }
+import Themeable from 'vuetify/es5/mixins/themeable'
+export default {
+  mixins: [Themeable],
+  components: {
+    DashboardCoreAppBar,
+    DashboardCoreDrawer: () => import('@/components/Drawer'),
+    DashboardCoreView
+    // DashboardCoreView: () => import('@/components/View'),
+  },
+}
 </script>

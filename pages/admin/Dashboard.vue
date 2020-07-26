@@ -7,15 +7,101 @@
             <div class="display-2 font-weight-light">Employees Stats</div>
 
             <div class="subtitle-1 font-weight-light">New employees on 15th September, 2016</div>
+            <v-tabs v-model="officialsTab" background-color="transparent" slider-color="white" color="light">
+              <!-- <span class="subheading font-weight-light mx-3" style="align-self: center">Tasks:</span> -->
+              <v-tab class="mr-3">
+                <v-icon class="mr-2">mdi-bug</v-icon>State Officials
+              </v-tab>
+              <v-tab class="mr-3">
+                <v-icon class="mr-2">mdi-bug</v-icon>County Officials
+              </v-tab>
+              <v-tab class="mr-3">
+                <v-icon class="mr-2">mdi-code-tags</v-icon>City Officials
+              </v-tab>
+            </v-tabs>
           </template>
+          <v-tabs-items v-model="officialsTab" class="transparent">
+            <v-tab-item>
+              <v-card-text>
+                <template v-for="(official, i) in officials[0][0]">
+                  <v-row :key="i" align="center">
+                    <v-col cols="12">
+                      <v-card class="mx-auto">
+                        <v-list-item two-line>
+                          <v-list-item-content>
+                            <v-list-item-title class="text-wrap headline mb-1">{{official.name}}</v-list-item-title>
+                            <v-list-item-subtitle>{{official.position}}</v-list-item-subtitle>
+                          </v-list-item-content>
+
+                          <v-list-item-avatar tile size="80" color="grey"></v-list-item-avatar>
+                        </v-list-item>
+
+                        <v-card-actions>
+                          <v-btn :href="official.website" text raised>View Website</v-btn>
+                        </v-card-actions>
+                      </v-card>
+                    </v-col>
+                  </v-row>
+                </template>
+              </v-card-text>
+            </v-tab-item>
+            <v-tab-item>
+              <v-card-text>
+                <template v-for="(official, i) in officials[1]">
+                  <v-row :key="i" align="center">
+                    <v-col cols="12">
+                      <v-card class="mx-auto">
+                        <v-list-item two-line>
+                          <v-list-item-content>
+                            <v-list-item-title class="text-wrap headline mb-1">{{official.name}}</v-list-item-title>
+                            <v-list-item-subtitle>{{official.position}}</v-list-item-subtitle>
+                          </v-list-item-content>
+
+                          <v-list-item-avatar tile size="80" color="grey"></v-list-item-avatar>
+                        </v-list-item>
+
+                        <v-card-actions>
+                          <v-btn :href="official.website" text raised>View Website</v-btn>
+                        </v-card-actions>
+                      </v-card>
+                    </v-col>
+                  </v-row>
+                </template>
+              </v-card-text>
+            </v-tab-item>
+            <v-tab-item>
+              <v-card-text>
+                <template v-for="(official, i) in officials[2]">
+                  <v-row :key="i" align="center">
+                    <v-col cols="12">
+                      <v-card class="mx-auto">
+                        <v-list-item two-line>
+                          <v-list-item-content>
+                            <v-list-item-title class="text-wrap headline mb-1">{{official.name}}</v-list-item-title>
+                            <v-list-item-subtitle>{{official.position}}</v-list-item-subtitle>
+                          </v-list-item-content>
+
+                          <v-list-item-avatar tile size="80" color="grey"></v-list-item-avatar>
+                        </v-list-item>
+
+                        <v-card-actions>
+                          <v-btn :href="official.website" text raised>View Website</v-btn>
+                        </v-card-actions>
+                      </v-card>
+                    </v-col>
+                  </v-row>
+                </template>
+              </v-card-text>
+            </v-tab-item>
+          </v-tabs-items>
         </material-card>
       </v-col>
 
       <v-col cols="12" md="12">
         <material-card class="px-5 py-3">
           <template v-slot:heading>
-            <v-tabs v-model="tabs" background-color="transparent" slider-color="white">
-              <span class="subheading font-weight-light mx-3" style="align-self: center">Tasks:</span>
+            <v-tabs v-model="policiesTab" background-color="transparent" slider-color="white" color="light">
+              <!-- <span class="subheading font-weight-light mx-3" style="align-self: center">Tasks:</span> -->
               <v-tab class="mr-3">
                 <v-icon class="mr-2">mdi-bug</v-icon>State Props
               </v-tab>
@@ -23,12 +109,12 @@
                 <v-icon class="mr-2">mdi-code-tags</v-icon>Local Measures
               </v-tab>
               <v-tab>
-                <v-icon class="mr-2">mdi-cloud</v-icon>Server
+                <v-icon class="mr-2">mdi-cloud</v-icon>City Resolutions
               </v-tab>
             </v-tabs>
           </template>
 
-          <v-tabs-items v-model="tabs" class="transparent">
+          <v-tabs-items v-model="policiesTab" class="transparent">
             <v-tab-item>
               <v-card-text>
                 <template v-for="(prop, i) in policies[0]">
@@ -137,12 +223,45 @@ export default {
         });
       });
       this.policies[0] = stateProps;
+
+      const officials = await db
+        .collection("states")
+        .doc(doc.id)
+        .collection("officials");
+      const official = await officials.get();
+      const stateReps = []
+      const stateSens = []
+      await official.forEach(async (doc) => {
+        const representatives = await officials.doc(doc.id).collection("representatives")
+        const reps = await representatives.get()
+        await reps.forEach(async (doc) => {
+          stateReps.push({
+            name: doc.data().name,
+            district: doc.data().district,
+            party: doc.data().party,
+            website: doc.data().website,
+          });
+        });
+
+        const senators = await officials.doc(doc.id).collection("senators")
+        const sens = await senators.get()
+        await sens.forEach(async (doc) => {
+          stateSens.push({
+            name: doc.data().name,
+            party: doc.data().party,
+            website: doc.data().website,
+          });
+        });
+      });
+      this.officials[0][0] = stateSens
+      this.officials[0][1] = stateReps
     });
 
     const counties = db.collection("counties");
     documents = await counties.get();
     documents.forEach(async (doc) => {
       const county = counties.doc(doc.id);
+      // Retrieving Measures
       const measures = await db
         .collection("counties")
         .doc(doc.id)
@@ -157,6 +276,21 @@ export default {
         });
       });
       this.policies[1] = countyMeasures;
+
+      const officials = await db
+        .collection("counties")
+        .doc(doc.id)
+        .collection("officials");
+      const official = await officials.get();
+      const countyOfficials = [];
+      await official.forEach((doc) => {
+        countyOfficials.push({
+          name: doc.data().name,
+          position: doc.data().position,
+          website: doc.data().website,
+        });
+      });
+      this.officials[1] = countyOfficials;
     });
 
     const cities = db.collection("cities");
@@ -177,21 +311,40 @@ export default {
         });
       });
       this.policies[2] = cityResolution;
+
+      const officials = await db
+        .collection("cities")
+        .doc(doc.id)
+        .collection("officials");
+      const official = await officials.get();
+      const cityOfficials = [];
+      await official.forEach((doc) => {
+        cityOfficials.push({
+          name: doc.data().name,
+          position: doc.data().position,
+          website: doc.data().website,
+        });
+      });
+      this.officials[2] = cityOfficials;
     });
-  },
-  computed: {
-    users() {
-      return this.$store.state.user;
-    },
   },
   data() {
     return {
-      tabs: 0,
+      officialsTab: 0,
+      officials: {
+        0: {
+          0: [],
+          1: []
+        },
+        1: [],
+        2: []
+      },
+      policiesTab: 0,
       policies: {
         0: [],
         1: [],
         2: [],
-      },
+      }
     };
   },
 
