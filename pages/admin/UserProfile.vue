@@ -39,8 +39,8 @@
                   md="4"
                 >
                   <v-text-field
-                    label="First Name"
-                    class="purple-input"
+                    label="Name"
+                    v-model="name"
                   />
                 </v-col>
 
@@ -49,8 +49,8 @@
                   md="4"
                 >
                   <v-text-field
-                    label="Last Name"
-                    class="purple-input"
+                    label="Username"
+                    v-model="username"
                   />
                 </v-col>
 
@@ -81,8 +81,9 @@
                   class="text-right"
                 >
                   <v-btn
-                    color="success"
+                    color="primary"
                     class="mr-0"
+                    @click="update()"
                   >
                     Update Profile
                   </v-btn>
@@ -97,15 +98,34 @@
 </template>
 
 <script>
+import { db } from '@/services/firebase'
 export default {
   layout: 'dashboard',
-  mounted: function() {
+  mounted: async function() {
     this.email = this.$store.state.users.user.email
+    const uid = this.$store.state.users.user.uid
+    var user = db.collection("users").doc(uid)
+    var userFields = await user.get()
+    this.settings = userFields.data().settings
+    this.name = userFields.data().name
+    this.username = userFields.data().username
   },
   data() {
     return {
-      email: null,
+      email: "",
+      name: "",
+      username: "",
       settings: []
+    }
+  },
+  methods: {
+    async update() {
+      const uid = this.$store.state.users.user.uid
+      await db.collection("users").doc(uid).update({
+        settings: this.settings,
+        name: this.name,
+        username: this.username
+      })
     }
   }
 }

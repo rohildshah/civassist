@@ -1,6 +1,5 @@
 <template>
   <v-navigation-drawer
-    id="core-navigation-drawer"
     v-model="drawer"
     :expand-on-hover="false"
     :src="barImage"
@@ -71,11 +70,6 @@ export default {
           icon: "mdi-account",
           title: "Profile",
           to: "/admin/UserProfile",
-        },
-        {
-          title: "Tables",
-          icon: "mdi-clipboard-outline",
-          to: "/admin/RegularTables",
         },
         {
           title: "Maps",

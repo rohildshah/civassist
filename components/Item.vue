@@ -6,13 +6,8 @@
     :to="item.to"
     active-class="primary"
   >
-    <v-list-item-icon
-      v-if="text"
-      class="v-list-item__icon--text"
-      v-text="computedText"
-    />
 
-    <v-list-item-icon v-else-if="item.icon">
+    <v-list-item-icon class="pl-4">
       <v-icon v-text="item.icon" />
     </v-list-item-icon>
 
@@ -39,10 +34,6 @@
           title: undefined,
           to: undefined,
         }),
-      },
-      text: {
-        type: Boolean,
-        default: false,
       },
     },
 

@@ -2,26 +2,26 @@
   <v-container id="dashboard" fluid tag="section">
     <v-row>
       <v-col cols="12" md="12">
-        <material-card color="warning" class="px-5 py-3">
+        <material-card v-if="visible.includes('State Officials') || visible.includes('County Officials') || visible.includes('City Officials')" color="primary" class="px-5 py-3">
           <template v-slot:heading>
-            <div class="display-2 font-weight-light">Employees Stats</div>
+            <div class="display-2 font-weight-light">Government Officials</div>
 
-            <div class="subtitle-1 font-weight-light">New employees on 15th September, 2016</div>
+            <div class="subtitle-1 font-weight-light">As of July 2020</div>
             <v-tabs v-model="officialsTab" background-color="transparent" slider-color="white" color="light">
               <!-- <span class="subheading font-weight-light mx-3" style="align-self: center">Tasks:</span> -->
-              <v-tab class="mr-3">
+              <v-tab v-if="visible.includes('State Officials')" class="mr-3">
                 <v-icon class="mr-2">mdi-bug</v-icon>State Officials
               </v-tab>
-              <v-tab class="mr-3">
+              <v-tab v-if="visible.includes('County Officials')" class="mr-3">
                 <v-icon class="mr-2">mdi-bug</v-icon>County Officials
               </v-tab>
-              <v-tab class="mr-3">
+              <v-tab v-if="visible.includes('City Officials')" class="mr-3">
                 <v-icon class="mr-2">mdi-code-tags</v-icon>City Officials
               </v-tab>
             </v-tabs>
           </template>
           <v-tabs-items v-model="officialsTab" class="transparent">
-            <v-tab-item>
+            <v-tab-item v-if="visible.includes('State Officials')">
               <v-card-text>
                 <template v-for="(official, i) in officials[0][0]">
                   <v-row :key="i" align="center">
@@ -30,7 +30,30 @@
                         <v-list-item two-line>
                           <v-list-item-content>
                             <v-list-item-title class="text-wrap headline mb-1">{{official.name}}</v-list-item-title>
-                            <v-list-item-subtitle>{{official.position}}</v-list-item-subtitle>
+                            <v-list-item-subtitle>{{official.party}}</v-list-item-subtitle>
+                          </v-list-item-content>
+
+                          <v-list-item-avatar tile size="80" color="grey"></v-list-item-avatar>
+                        </v-list-item>
+
+                        <v-card-actions>
+                          <v-btn :href="official.website" text raised>View Website</v-btn>
+                        </v-card-actions>
+                      </v-card>
+                    </v-col>
+                  </v-row>
+                </template>
+              </v-card-text>
+              <v-card-text>
+                <template v-for="(official, i) in officials[0][1]">
+                  <v-row :key="i" align="center">
+                    <v-col cols="12">
+                      <v-card class="mx-auto">
+                        <v-list-item three-line>
+                          <v-list-item-content>
+                            <div class="overline mb-4">{{official.district}}</div>
+                            <v-list-item-title class="text-wrap headline mb-1">{{official.name}}</v-list-item-title>
+                            <v-list-item-subtitle>{{official.party}}</v-list-item-subtitle>
                           </v-list-item-content>
 
                           <v-list-item-avatar tile size="80" color="grey"></v-list-item-avatar>
@@ -45,7 +68,7 @@
                 </template>
               </v-card-text>
             </v-tab-item>
-            <v-tab-item>
+            <v-tab-item v-if="visible.includes('County Officials')">
               <v-card-text>
                 <template v-for="(official, i) in officials[1]">
                   <v-row :key="i" align="center">
@@ -69,7 +92,7 @@
                 </template>
               </v-card-text>
             </v-tab-item>
-            <v-tab-item>
+            <v-tab-item v-if="visible.includes('City Officials')">
               <v-card-text>
                 <template v-for="(official, i) in officials[2]">
                   <v-row :key="i" align="center">
@@ -98,24 +121,27 @@
       </v-col>
 
       <v-col cols="12" md="12">
-        <material-card class="px-5 py-3">
+        <material-card v-if="visible.includes('State Propositions') || visible.includes('County Measures') || visible.includes('City Resolutions')" class="px-5 py-3">
           <template v-slot:heading>
+            <div class="display-2 font-weight-light">Policies</div>
+
+            <div class="subtitle-1 font-weight-light">As of July 2020</div>
             <v-tabs v-model="policiesTab" background-color="transparent" slider-color="white" color="light">
               <!-- <span class="subheading font-weight-light mx-3" style="align-self: center">Tasks:</span> -->
-              <v-tab class="mr-3">
+              <v-tab v-if="visible.includes('State Propositions')" class="mr-3">
                 <v-icon class="mr-2">mdi-bug</v-icon>State Props
               </v-tab>
-              <v-tab class="mr-3">
-                <v-icon class="mr-2">mdi-code-tags</v-icon>Local Measures
+              <v-tab v-if="visible.includes('County Measures')" class="mr-3">
+                <v-icon class="mr-2">mdi-code-tags</v-icon>County Measures
               </v-tab>
-              <v-tab>
+              <v-tab v-if="visible.includes('City Resolutions')" class="mr-3">
                 <v-icon class="mr-2">mdi-cloud</v-icon>City Resolutions
               </v-tab>
             </v-tabs>
           </template>
 
           <v-tabs-items v-model="policiesTab" class="transparent">
-            <v-tab-item>
+            <v-tab-item v-if="visible.includes('State Propositions')">
               <v-card-text>
                 <template v-for="(prop, i) in policies[0]">
                   <v-row :key="i" align="center">
@@ -140,7 +166,7 @@
                 </template>
               </v-card-text>
             </v-tab-item>
-            <v-tab-item>
+            <v-tab-item v-if="visible.includes('County Measures')">
               <v-card-text>
                 <template v-for="(measure, i) in policies[1]">
                   <v-row :key="i" align="center">
@@ -165,7 +191,7 @@
                 </template>
               </v-card-text>
             </v-tab-item>
-            <v-tab-item>
+            <v-tab-item v-if="visible.includes('City Resolutions')">
               <v-card-text>
                 <template v-for="(resolution, i) in policies[2]">
                   <v-row :key="i" align="center">
@@ -326,7 +352,13 @@ export default {
         });
       });
       this.officials[2] = cityOfficials;
+
     });
+
+    var uid = this.$store.state.users.user.uid
+    const users = db.collection("users").doc(uid)
+    const user = await users.get()
+    this.visible = user.data().settings
   },
   data() {
     return {
@@ -344,7 +376,8 @@ export default {
         0: [],
         1: [],
         2: [],
-      }
+      },
+      visible: []
     };
   },
 
@@ -353,15 +386,6 @@ export default {
       await auth.signOut();
       location.href = "/";
     },
-    async getData() {
-      const states = await db.collections("states").get();
-      console.log("Hi");
-    },
   },
 };
 </script>
-
-  <!-- <div>
-    <h1>Hi</h1>
-    <a @click = "logout">Logout</a>
-  </div> -->

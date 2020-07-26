@@ -154,18 +154,18 @@
       <v-toolbar dense>
         <v-app-bar-nav-icon></v-app-bar-nav-icon>
 
-        <v-toolbar-title>Title</v-toolbar-title>
+        <v-toolbar-title>CivAssist</v-toolbar-title>
 
         <v-spacer></v-spacer>
-
-        <v-btn color="primary" text @click="signOut()">Log Out</v-btn>
+<!--
+        <v-btn color="primary" text @click="signOut()">Log Out</v-btn> -->
 
         <v-dialog v-model="isSignUpModalActive" width="600">
           <template v-slot:activator="{ on, attrs }">
-            <v-btn color="red lighten-2" dark v-bind="attrs" v-on="on">Sign Up</v-btn>
+            <v-btn class="mx-4" color="primary" dark v-bind="attrs" v-on="on">Sign Up</v-btn>
           </template>
           <v-card>
-            <v-card-title class="headline grey lighten-2">Sign Up</v-card-title>
+            <v-card-title class="headline primary">Sign Up</v-card-title>
 
             <v-form class="px-6 py-6" ref="form" v-model="valid" lazy-validation>
               <v-text-field v-model="account.email" :rules="emailRules" label="Email" required></v-text-field>
@@ -203,10 +203,10 @@
 
         <v-dialog v-model="isLoginModalActive" width="600">
           <template v-slot:activator="{ on, attrs }">
-            <v-btn color="red lighten-2" dark v-bind="attrs" v-on="on">Log In</v-btn>
+            <v-btn color="primary" dark v-bind="attrs" v-on="on">Log In</v-btn>
           </template>
           <v-card>
-            <v-card-title class="headline grey lighten-2">Log In</v-card-title>
+            <v-card-title class="headline primary">Log In</v-card-title>
 
             <v-form class="px-6 py-6" ref="form" v-model="valid" lazy-validation>
               <v-text-field v-model="account.email" :rules="emailRules" label="Email" required></v-text-field>
@@ -279,7 +279,7 @@
         <div class="py-12"></div>
 
         <v-container class="text-center">
-          <h2 class="display-2 font-weight-bold mb-3">ABOUT ME</h2>
+          <h2 class="display-2 font-weight-bold mb-3">ABOUT CIVASSIST</h2>
 
           <v-responsive class="mx-auto mb-8" width="56">
             <v-divider class="mb-1"></v-divider>
@@ -290,10 +290,10 @@
           <v-responsive
             class="mx-auto title font-weight-light mb-8"
             max-width="720"
-          >Vuetify is the #1 component library for Vue.js and has been in active development since 2016. The goal of the project is to provide users with everything that is needed to build rich and engaging web applications using the Material Design specification. It accomplishes that with a consistent update cycle, Long-term Support (LTS) for previous versions, responsive community engagement, a vast ecosystem of resources and a dedication to quality components.</v-responsive>
+          >CivAssist aims to increase civic engagement by providing users quick and easy access to the information they care about related to city, state, and federal governments.</v-responsive>
 
           <v-avatar class="elevation-12 mb-12" size="128">
-            <v-img src="https://cdn.vuetifyjs.com/images/john.png"></v-img>
+            <v-img :src="require('@/static/civassist.png')"></v-img>
           </v-avatar>
 
           <div></div>
@@ -359,7 +359,7 @@ export default {
       ],
 
       // Settings Setup
-      settings: [],
+      settings: ["State Officials", "County Officials", "City Officials", "State Propositions", "County Measures", "City Resolutions"],
 
       // Submit Setup
       submitted: false,
@@ -430,10 +430,9 @@ export default {
     async finish() {
       this.submitted = true
       const user = await this.$store.state.users.user
-      console.log(user + "THIS IS THE USER")
-      console.log(this.settings)
       const setup = {profile: this.profile, settings: this.settings, uid: user.uid}
       await this.$store.dispatch("users/setup", setup);
+      this.$router.push("admin/Dashboard")
     }
   },
 };
