@@ -7,12 +7,12 @@
     <v-row justify="center">
       <v-col
         cols="12"
-        md="8"
+        md="12"
       >
         <material-card>
           <template v-slot:heading>
             <div class="display-2 font-weight-light">
-              Edit Profile
+              Profile
             </div>
 
             <div class="subtitle-1 font-weight-light">
@@ -28,7 +28,8 @@
                   md="4"
                 >
                   <v-text-field
-                    label="Company (disabled)"
+                    label="Email Address"
+                    :value="email"
                     disabled
                   />
                 </v-col>
@@ -38,26 +39,6 @@
                   md="4"
                 >
                   <v-text-field
-                    class="purple-input"
-                    label="User Name"
-                  />
-                </v-col>
-
-                <v-col
-                  cols="12"
-                  md="4"
-                >
-                  <v-text-field
-                    label="Email Address"
-                    class="purple-input"
-                  />
-                </v-col>
-
-                <v-col
-                  cols="12"
-                  md="6"
-                >
-                  <v-text-field
                     label="First Name"
                     class="purple-input"
                   />
@@ -65,7 +46,7 @@
 
                 <v-col
                   cols="12"
-                  md="6"
+                  md="4"
                 >
                   <v-text-field
                     label="Last Name"
@@ -73,50 +54,26 @@
                   />
                 </v-col>
 
-                <v-col cols="12">
-                  <v-text-field
-                    label="Adress"
-                    class="purple-input"
-                  />
+                <v-col
+                  cols="12"
+                  md="4"
+                >
+                  <v-container fluid>
+                    <v-switch v-model="settings" label="State Propositions" value="State Propositions"></v-switch>
+                    <v-switch v-model="settings" label="County Measures" value="County Measures"></v-switch>
+                    <v-switch v-model="settings" label="City Resolutions" value="City Resolutions"></v-switch>
+                  </v-container>
                 </v-col>
 
                 <v-col
                   cols="12"
                   md="4"
                 >
-                  <v-text-field
-                    label="City"
-                    class="purple-input"
-                  />
-                </v-col>
-
-                <v-col
-                  cols="12"
-                  md="4"
-                >
-                  <v-text-field
-                    label="Country"
-                    class="purple-input"
-                  />
-                </v-col>
-
-                <v-col
-                  cols="12"
-                  md="4"
-                >
-                  <v-text-field
-                    class="purple-input"
-                    label="Postal Code"
-                    type="number"
-                  />
-                </v-col>
-
-                <v-col cols="12">
-                  <v-textarea
-                    class="purple-input"
-                    label="About Me"
-                    value="Lorem ipsum dolor sit amet, consectetur adipiscing elit."
-                  />
+                  <v-container fluid>
+                    <v-switch v-model="settings" label="State Officials" value="State Officials"></v-switch>
+                    <v-switch v-model="settings" label="County Officials" value="County Officials"></v-switch>
+                    <v-switch v-model="settings" label="City Officials" value="City Officials"></v-switch>
+                  </v-container>
                 </v-col>
 
                 <v-col
@@ -135,44 +92,21 @@
           </v-form>
         </material-card>
       </v-col>
-
-      <v-col
-        cols="12"
-        md="4"
-      >
-        <material-card
-          class="v-card-profile"
-          avatar="https://demos.creative-tim.com/vue-material-dashboard/img/marc.aba54d65.jpg"
-        >
-          <v-card-text class="text-center">
-            <h6 class="display-1 mb-1 grey--text">
-              CEO / CO-FOUNDER
-            </h6>
-
-            <h4 class="display-2 font-weight-light mb-3 black--text">
-              Alec Thompson
-            </h4>
-
-            <p class="font-weight-light grey--text">
-              Don't be scared of the truth because we need to restart the human foundation in truth And I love you like Kanye loves Kanye I love Rick Owens’ bed design but the back is...
-            </p>
-
-            <v-btn
-              color="success"
-              rounded
-              class="mr-0"
-            >
-              Follow
-            </v-btn>
-          </v-card-text>
-        </material-card>
-      </v-col>
     </v-row>
   </v-container>
 </template>
 
 <script>
 export default {
-  layout: 'dashboard'
+  layout: 'dashboard',
+  mounted: function() {
+    this.email = this.$store.state.users.user.email
+  },
+  data() {
+    return {
+      email: null,
+      settings: []
+    }
+  }
 }
 </script>

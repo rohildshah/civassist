@@ -4,7 +4,7 @@
     :rel="href && href !== '#' ? 'noopener' : undefined"
     :target="href && href !== '#' ? '_blank' : undefined"
     :to="item.to"
-    :active-class="`primary ${!isDark ? 'black' : 'white'}--text`"
+    active-class="primary"
   >
     <v-list-item-icon
       v-if="text"
@@ -25,12 +25,9 @@
 </template>
 
 <script>
-  import Themeable from 'vuetify/lib/mixins/themeable'
 
   export default {
     name: 'Item',
-
-    mixins: [Themeable],
 
     props: {
       item: {
