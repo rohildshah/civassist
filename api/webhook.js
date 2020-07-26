@@ -28,11 +28,14 @@ const express = require('express')
 const bodyParser = require('body-parser')
 const app = express().use(bodyParser.json());
 const request = require('request');
-// const PAGE_ACCESS_TOKEN = process.env.PAGE_ACCESS_TOKEN;
-const PAGE_ACCESS_TOKEN = "EAAmhWoMcs2EBAOqJ3NYaE6FkAoccKPxoyVIsLsRbhOyi7hGqvBMB0MlQV0ZBh8RDYOhiDMVrzHUR8Pku0pTkxnQmF71ptPHfhpdcrvobi93aKXtMm41DUic4vLE5yJdC49zjU040sKLCujTgmQgUnrPN2KZAZAu5Udfyl09KgZDZD";
-const user = "";
-const passkey = "";
-const queries = [];
+const fetch = require('node-fetch');
+const PAGE_ACCESS_TOKEN = process.env.PAGE_ACCESS_TOKEN;
+var emailID = "";
+var passkey = "";
+var PSID = ""
+var queries = [];
+var settings = [];
+var allInfo = [];
 
 // Creates the endpoint for our webhook
 app.post('/webhook', (req, res) => {
@@ -49,6 +52,7 @@ app.post('/webhook', (req, res) => {
       let sender_psid = webhook_event.sender.id;
       let isMessage = webhook_event.message;
       let isPostback = webhook_event.postback;
+      let isQuickReply = webhook_event.quick_reply;
 
       console.log(webhook_event);
       console.log('Sender PSID: ' + sender_psid);
@@ -98,49 +102,95 @@ app.get('/webhook', (req, res) => {
   }
 });
 
-function handleMessage(sender_psid, received_message) {
-  let response;
+async function handleMessage(sender_psid, received_message) {
+  let response, response2, response3, response4, response5 = {};
   let text = received_message.text;
   let attachment = received_message.attachments;
   console.log(text)
 
   // Check if message has text
   if (text) {
-    user = "";
-    passkey = "";
     queries = [];
     queries = text.split(" ");
     console.log(queries)
     switch (queries[0]) {
-      case 'user:':
-        user = queries[1]
-        response = {
-          "text": `Your new username is: "${queries[1]}". Please type a username with the format 'pk: [my-passkey]'.`
-        }
-        break;
-      case 'pk:':
-        passkey = queries[1]
+      case 'em:':
         response = {
           "attachment": {
             "type": "template",
             "payload": {
               "template_type": "button",
-              "text": `Log in or Sign up with "${user}" and "${passkey}"?`,
+              "text": `You are logged in with ${emailID}. Please log out to change accounts.`,
               "buttons": [
                 {
                   "type": "postback",
-                  "title": "Log In",
-                  "payload": "log"
-                },
-                {
-                  "type": "postback",
-                  "title": "Sign Up",
-                  "payload": "sign"
+                  "title": "Log Out",
+                  "payload": "out"
                 }
               ]
             }
           }
         }
+        if (emailID === "") {
+          emailID = queries[1]
+          response = {
+            "text": `Your new email is: ${emailID}. Please type a passkey with the format 'pk: [my-passkey]'.`
+          }
+        }
+        break;
+      case 'pk:':
+        response = {
+          "attachment": {
+            "type": "template",
+            "payload": {
+              "template_type": "button",
+              "text": `You are logged in with ${emailID}. Please log out to change accounts.`,
+              "buttons": [
+                {
+                  "type": "postback",
+                  "title": "Log Out",
+                  "payload": "out"
+                }
+              ]
+            }
+          }
+        }
+        if (passkey === "") {
+          passkey = queries[1]
+          response = {
+            "attachment": {
+              "type": "template",
+              "payload": {
+                "template_type": "button",
+                "text": `Log in or Sign up with "${emailID}" and "${passkey}"?\nNew users should sign up and returning users should log in.`,
+                "buttons": [
+                  {
+                    "type": "postback",
+                    "title": "Log In",
+                    "payload": "log"
+                  },
+                  {
+                    "type": "postback",
+                    "title": "Sign Up",
+                    "payload": "sign"
+                  }
+                ]
+              }
+            }
+          }
+        }
+
+        break;
+      case '|':
+        await updateSettings(text).then(result => {
+          response = result;
+        });
+
+        break;
+      case 'Get':
+        await collectInformation().then(result => {
+          response = result;
+        })
         break;
       default:
         response = {
@@ -154,12 +204,21 @@ function handleMessage(sender_psid, received_message) {
   }
 
   // Send response
-  callSendAPI(sender_psid, response);
+  callSendAPI(sender_psid, response).then(() => {
+    return callSendAPI(sender_psid, response2).then(() => {
+      return callSendAPI(sender_psid, response3).then(() => {
+        return callSendAPI(sender_psid, response4).then(() => {
+          return callSendAPI(sender_psid, response5);
+        });
+      });
+    });
+  });
 }
 
-function handlePostback(sender_psid, received_postback) {
-  let response;
+async function handlePostback(sender_psid, received_postback) {
+  let response, response2, response3, response4, response5 = {};
   let payload = received_postback.payload;
+  PSID = sender_psid
 
   // Set the response based on the postback payload
   switch (payload) {
@@ -171,12 +230,12 @@ function handlePostback(sender_psid, received_postback) {
             "template_type": "generic",
             "elements": [{
               "title": "Welcome to CivAssist!",
-              "subtitle": "Tap a button to continue",
+              "subtitle": "Tap the button to continue",
               "image_url": "https://i.ibb.co/26sn6MG/civassist.png",
               "buttons": [
                 {
                   "type": "postback",
-                  "title": "Sign Up or Log In",
+                  "title": "Get Started",
                   "payload": "auth",
                 }
               ],
@@ -187,14 +246,70 @@ function handlePostback(sender_psid, received_postback) {
       break;
     case 'auth':
       response = {
-        "text": "Please type a username with the format 'user: [my-username]'."
+        "text": "Please type an email with the format 'em: [my-email]'."
       }
       break;
     case 'log':
-      fbAuth('log');
-      break;
     case 'sign':
-      fbAuth('sign');
+      response = await fbAuth(payload)
+      break;
+    case 'out':
+      await fbAuthOut().then(result => {
+        response = result
+      }).catch(error => {
+        response = {
+          "attachment": {
+            "type": "template",
+            "payload": {
+              "template_type": "button",
+              "text": error,
+              "buttons": [
+                {
+                  "type": "postback",
+                  "title": "Log In",
+                  "payload": "auth"
+                }
+              ]
+            }
+          }
+        }
+      })
+      break;
+    case 'main':
+      response = {
+        "text" : "Choose an option from the hamburger menu near the input bar."
+      }
+      break;
+    case 'report':      
+      await getInfo().then(result => {
+        response = {
+          "text": `Tap the Get Report reply.`,
+          "quick_replies": [
+            {
+              "content_type":"text",
+              "title":"Get Report",
+              "payload":"state-officials",
+            }
+          ]
+        }
+      }).catch(error => {
+        response = {
+          "attachment": {
+            "type": "template",
+            "payload": {
+              "template_type": "button",
+              "text": error,
+              "buttons": [
+                {
+                  "type": "postback",
+                  "title": "Log In",
+                  "payload": "auth"
+                }
+              ]
+            }
+          }
+        }
+      })
       break;
     case 'settings':
       response = {
@@ -202,43 +317,436 @@ function handlePostback(sender_psid, received_postback) {
           "type": "template",
           "payload": {
             "template_type": "button",
-            "text": "Edit your settings here!",
+            "text": `Email: ${emailID}\nPasskey: ${passkey}`,
             "buttons": [
               {
-                "type": "web_url",
-                "url": "https://www.facebook.com",
-                "title": "Facebook"
+                "type": "postback",
+                "title": "Log Out",
+                "payload": "out"
+              },
+            ]
+          }
+        }
+      }
+      response2 = {
+        "text": `Toggle Settings: \n${settings.join("\n")}`,
+        "quick_replies":[
+          {
+            "content_type":"text",
+            "title":"| State Officials",
+            "payload":"state-officials",
+          },
+          {
+            "content_type":"text",
+            "title":"| County Officials",
+            "payload":"county-officials",
+          },
+          {
+            "content_type":"text",
+            "title":"| City Officials",
+            "payload":"city-officials",
+          },
+          {
+            "content_type":"text",
+            "title":"| State Propositions",
+            "payload":"state-propositions",
+          },
+          {
+            "content_type":"text",
+            "title":"| County Measures",
+            "payload":"county-measures",
+          },
+          {
+            "content_type":"text",
+            "title":"| City Resolutions",
+            "payload":"city-resolutions",
+          }
+        ]
+      }
+      if (emailID === "") {
+        response = {
+          "attachment": {
+            "type": "template",
+            "payload": {
+              "template_type": "button",
+              "text": `You are not logged in.`,
+              "buttons": [
+                {
+                  "type": "postback",
+                  "title": "Log In",
+                  "payload": "auth"
+                },
+              ]
+            }
+          }
+        }
+        response2 = {}
+      }
+
+
+      break;
+  }
+  // Send the message to acknowledge the postback
+  callSendAPI(sender_psid, response).then(() => {
+    return callSendAPI(sender_psid, response2).then(() => {
+      return callSendAPI(sender_psid, response3).then(() => {
+        return callSendAPI(sender_psid, response4).then(() => {
+          return callSendAPI(sender_psid, response5);
+        });
+      });
+    });
+  });
+}
+
+async function collectInformation() {
+  var obj;
+  let response;
+  if (settings.includes('State Officials')) {
+
+    console.log(allInfo[1])
+    console.log(allInfo[2])
+  }
+  if (settings.includes('County Officials')) {
+    obj = ""
+    allInfo[4].forEach(function(element) {
+      obj += "Name: " + element.name;
+      obj += "\nPosition: " + element.position;
+      obj += "\nWebsite: " + element.website + "\n\n";
+    })
+    response = {
+      "text": obj
+    }
+  }
+  if (settings.includes('City Officials')) {
+    obj = ""
+    allInfo[6].forEach(function(element) {
+      obj += "Name: " + element.name;
+      obj += "\nPosition: " + element.position;
+      obj += "\nWebsite: " + element.website + "\n\n";
+    })
+    response = {
+      "text": obj
+    }
+  }
+  if (settings.includes('State Propositions')) {
+    obj = ""
+    allInfo[0].forEach(function(element) {
+      obj += "Name: " + element.name;
+      obj += "\nNumber: " + element.number;
+      obj += "\nSubject: " + element.subject;
+      obj += "\nWebsite: " + element.url;
+      obj += "\nDescription: " + element.desc + "\n\n";
+    })
+    console.log(obj)
+    response = {
+      "text": obj
+    }
+
+  }
+  if (settings.includes('County Measures')) {
+    console.log(allInfo[3])
+
+  }
+  if (settings.includes('City Resolutions')) {
+    console.log(allInfo[5])
+
+  }
+
+  return response;
+}
+
+
+async function updateSettings(text) {
+  let response = {}
+  text = text.split(" ").splice(1).join(" ");
+
+  if (settings.indexOf(text) >= 0) {
+    settings.splice(settings.indexOf(text), 1)
+  } else {
+    settings.push(text)
+  }
+
+  await db.collection("users").doc(PSID).update({
+    settings: settings
+  });
+
+  response = {
+    "attachment": {
+      "type": "template",
+      "payload": {
+        "template_type": "button",
+        "text": `Success! Settings now read: \n${settings.join("\n")}`,
+        "buttons": [
+          {
+            "type": "postback",
+            "title": "Continue",
+            "payload": "main"
+          }
+        ]
+      }
+    }
+  }
+  return response
+
+}
+
+
+async function getInfo() {
+  if (emailID == "") {
+    throw 'User is not logged in. Please log in to continue.';
+    return;
+  }
+
+  var STprops = []
+  var propositions = await db
+    .collection("states")
+    .doc("446b8ad0-cec1-11ea-9ce1-c163adabfc4b")
+    .collection("propositions");
+  propositions = await propositions.get();
+  await propositions.forEach((doc) => {
+    STprops.push({
+      name: doc.data().name,
+      number: doc.data().number,
+      subject: doc.data().subject,
+      url: doc.data().url,
+      desc: doc.data().desc,
+    });
+  });
+
+  var STreps = []
+  var officials = await db
+        .collection("states")
+        .doc('446b8ad0-cec1-11ea-9ce1-c163adabfc4b')
+        .collection("officials");
+  var representatives = await officials
+        .doc('45de0690-cec1-11ea-9ce1-c163adabfc4b')
+        .collection("representatives")
+  representatives = await representatives.get()
+  await representatives.forEach(async (doc) => {
+    STreps.push({
+      name: doc.data().name,
+      district: doc.data().district,
+      party: doc.data().party,
+      website: doc.data().website,
+    });
+  });
+  
+  var STsens = []
+  var senators = await officials
+        .doc('45de0690-cec1-11ea-9ce1-c163adabfc4b')
+        .collection("senators")
+  senators = await senators.get()
+  await senators.forEach(async (doc) => {
+    STsens.push({
+      name: doc.data().name,
+      party: doc.data().party,
+      website: doc.data().website,
+    });
+  });
+
+  var COUTmeasures = []
+  const county = await db
+        .collection("counties")
+        .doc('415884a0-cea4-11ea-b45b-c767a5aa3ded')
+  var measures = await county
+        .collection("measures");
+  measures = await measures.get()
+  await measures.forEach((doc) => {
+    COUTmeasures.push({
+      applies: doc.data().applies,
+      subject: doc.data().subject,
+      desc: doc.data().desc,
+    });
+  });
+
+  var COUTofficials = []
+  officials = await county
+        .collection("officials");
+  officials = await officials.get();
+  await officials.forEach((doc) => {
+    COUTofficials.push({
+      name: doc.data().name,
+      position: doc.data().position,
+      website: doc.data().website,
+    });
+  });
+
+  var CITresolutions = []
+  const cities = await db
+        .collection("cities")
+        .doc('5066d2a0-cec0-11ea-a6eb-89274da76583')
+  var resolutions = await cities
+    .collection("resolutions")
+  resolutions = await resolutions.get();
+  await resolutions.forEach((doc) => {
+    CITresolutions.push({
+      name: doc.data().name,
+      number: doc.data().number,
+      url: doc.data().url,
+    });
+  });
+
+  var CITofficials = []
+  officials = await cities
+        .collection("officials");
+  officials = await officials.get();
+  await officials.forEach((doc) => {
+    CITofficials.push({
+      name: doc.data().name,
+      position: doc.data().position,
+      website: doc.data().website,
+    });
+  });
+
+  allInfo = [STprops, STreps, STsens, COUTmeasures, COUTofficials, CITresolutions, CITofficials];
+}
+
+async function fbAuth(loginType) {
+  let response;
+
+  if (loginType == 'log') {
+    await auth.signInWithEmailAndPassword(emailID, passkey).then(async result => {
+      response = {
+        "attachment": {
+          "type": "template",
+          "payload": {
+            "template_type": "button",
+            "text": `Success! You are now logged in with email ${emailID}.`,
+            "buttons": [
+              {
+                "type": "postback",
+                "title": "Continue",
+                "payload": "main"
               }
             ]
           }
         }
       }
-      break;
-    case 'report':
-      break;
-  }
-  // Send the message to acknowledge the postback
-  callSendAPI(sender_psid, response);
-}
 
-async function fbAuth(loginType) {
-  if (loginType == 'log') {
-    console.log(account.password)
-    console.log(account.email)
-    await auth.signInWithEmailAndPassword(account.email, account.password)
-    const { email, uid } = auth.currentUser
+      var users = await db.collection("users").doc(PSID)
+      var user = await users.get()
+      settings = user.data().settings
+    }).catch(error =>  {
+      response = {
+        "attachment": {
+          "type": "template",
+          "payload": {
+            "template_type": "button",
+            "text": error.message + `\n\nEmail: "${emailID}" and\nPasskey: "${passkey}" must be changed accordingly.`,
+            "buttons": [
+              {
+                "type": "postback",
+                "title": "Try again",
+                "payload": "auth"
+              },
+              {
+                "type": "postback",
+                "title": "Log In",
+                "payload": "log"
+              }
+            ]
+          }
+        }
+      }
+    })
   } else {
-    await auth.createUserWithEmailAndPassword(account.email, account.password)
-    const { email, uid } = auth.currentUser
-    await db.collection("users").add({
-      name: account.name,
-      email: email,
-      uid: uid
+    await auth.createUserWithEmailAndPassword(emailID, passkey).then(async result => {
+      const { email, uid } = auth.currentUser
+      await db.collection("users").doc(PSID).set({
+        email: email,
+        uid: uid
+      })
+      response = {
+        "attachment": {
+          "type": "template",
+          "payload": {
+            "template_type": "button",
+            "text": `Success! You have created an account with email ${emailID}.`,
+            "buttons": [
+              {
+                "type": "postback",
+                "title": "Continue",
+                "payload": "settings"
+              }
+            ]
+          }
+        }
+      }
+    }).catch(error => {
+      response = {
+        "attachment": {
+          "type": "template",
+          "payload": {
+            "template_type": "button",
+            "text": error.message + `\n\nEmail: ${emailID} and\nPasskey: ${passkey} must be changed accordingly.`,
+            "buttons": [
+              {
+                "type": "postback",
+                "title": "Try again",
+                "payload": "auth"
+              }
+            ]
+          }
+        }
+      }
     })
   }
+  return(response);
+}
+
+async function fbAuthOut() {
+  if (emailID === "") {
+    throw 'You are not logged in.'
+    return;
+  }
+  
+  let response = {};
+
+  await auth.signOut().then(result => {
+    response = {
+      "attachment": {
+        "type": "template",
+        "payload": {
+          "template_type": "button",
+          "text": `Success! You have signed out of ${emailID}.`,
+          "buttons": [
+            {
+              "type": "postback",
+              "title": "Continue",
+              "payload": "get-started"
+            }
+          ]
+        }
+      }
+    }
+  }).catch(error => {
+    response = {
+      "attachment": {
+        "type": "template",
+        "payload": {
+          "template_type": "button",
+          "text": error.message,
+          "buttons": [
+            {
+              "type": "postback",
+              "title": "Try again",
+              "payload": "main"
+            }
+          ]
+        }
+      }
+    }
+  });
+  emailID = "";
+  passkey = "";
+  return (response);
 }
 
 function callSendAPI(sender_psid, response) {
+
+  if (response == {}) {
+    return;
+  }
   // Construct message body
   let request_body = {
     "recipient": {
@@ -247,17 +755,11 @@ function callSendAPI(sender_psid, response) {
     "message": response
   }
   // Send the HTTP request to the Messenger Platform
-  request({
-    "uri": "https://graph.facebook.com/v2.6/me/messages",
-    "qs": { "access_token": PAGE_ACCESS_TOKEN },
-    "method": "POST",
-    "json": request_body
-  }, (err, res, body) => {
-    if (!err) {
-      console.log('message sent!')
-    } else {
-      console.error("Unable to send message:" + err);
-    }
+  const qs = "access_token=" + PAGE_ACCESS_TOKEN;
+  return fetch('https://graph.facebook.com/v2.6/me/messages?' + qs, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(request_body),
   });
 }
 
