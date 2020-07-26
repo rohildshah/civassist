@@ -34,6 +34,8 @@ var emailID = "";
 var passkey = "";
 var PSID = ""
 var queries = [];
+var settings = [];
+var allInfo = [];
 
 // Creates the endpoint for our webhook
 app.post('/webhook', (req, res) => {
@@ -50,6 +52,7 @@ app.post('/webhook', (req, res) => {
       let sender_psid = webhook_event.sender.id;
       let isMessage = webhook_event.message;
       let isPostback = webhook_event.postback;
+      let isQuickReply = webhook_event.quick_reply;
 
       console.log(webhook_event);
       console.log('Sender PSID: ' + sender_psid);
@@ -99,7 +102,7 @@ app.get('/webhook', (req, res) => {
   }
 });
 
-function handleMessage(sender_psid, received_message) {
+async function handleMessage(sender_psid, received_message) {
   let response, response2, response3, response4, response5 = {};
   let text = received_message.text;
   let attachment = received_message.attachments;
@@ -178,6 +181,17 @@ function handleMessage(sender_psid, received_message) {
         }
 
         break;
+      case '|':
+        await updateSettings(text).then(result => {
+          response = result;
+        });
+
+        break;
+      case 'Get':
+        await collectInformation().then(result => {
+          response = result;
+        })
+        break;
       default:
         response = {
           "text": "Invalid"
@@ -204,6 +218,7 @@ function handleMessage(sender_psid, received_message) {
 async function handlePostback(sender_psid, received_postback) {
   let response, response2, response3, response4, response5 = {};
   let payload = received_postback.payload;
+  PSID = sender_psid
 
   // Set the response based on the postback payload
   switch (payload) {
@@ -236,7 +251,6 @@ async function handlePostback(sender_psid, received_postback) {
       break;
     case 'log':
     case 'sign':
-      PSID = sender_psid
       response = await fbAuth(payload)
       break;
     case 'out':
@@ -266,24 +280,17 @@ async function handlePostback(sender_psid, received_postback) {
         "text" : "Choose an option from the hamburger menu near the input bar."
       }
       break;
-    case 'report':
-      await fdsa().then(result => {
-        console.log(result)
+    case 'report':      
+      await getInfo().then(result => {
         response = {
-          "attachment": {
-            "type": "template",
-            "payload": {
-              "template_type": "button",
-              "text": `Choose an option`,
-              "buttons": [
-                {
-                  "type": "postback",
-                  "title": "Report here",
-                  "payload": "report"
-                }
-              ]
+          "text": `Tap the Get Report reply.`,
+          "quick_replies": [
+            {
+              "content_type":"text",
+              "title":"Get Report",
+              "payload":"state-officials",
             }
-          }
+          ]
         }
       }).catch(error => {
         response = {
@@ -321,6 +328,41 @@ async function handlePostback(sender_psid, received_postback) {
           }
         }
       }
+      response2 = {
+        "text": `Toggle Settings: \n${settings.join("\n")}`,
+        "quick_replies":[
+          {
+            "content_type":"text",
+            "title":"| State Officials",
+            "payload":"state-officials",
+          },
+          {
+            "content_type":"text",
+            "title":"| County Officials",
+            "payload":"county-officials",
+          },
+          {
+            "content_type":"text",
+            "title":"| City Officials",
+            "payload":"city-officials",
+          },
+          {
+            "content_type":"text",
+            "title":"| State Propositions",
+            "payload":"state-propositions",
+          },
+          {
+            "content_type":"text",
+            "title":"| County Measures",
+            "payload":"county-measures",
+          },
+          {
+            "content_type":"text",
+            "title":"| City Resolutions",
+            "payload":"city-resolutions",
+          }
+        ]
+      }
       if (emailID === "") {
         response = {
           "attachment": {
@@ -338,7 +380,9 @@ async function handlePostback(sender_psid, received_postback) {
             }
           }
         }
+        response2 = {}
       }
+
 
       break;
   }
@@ -354,20 +398,113 @@ async function handlePostback(sender_psid, received_postback) {
   });
 }
 
-async function fdsa() {
+async function collectInformation() {
+  var obj;
+  let response;
+  if (settings.includes('State Officials')) {
+
+    console.log(allInfo[1])
+    console.log(allInfo[2])
+  }
+  if (settings.includes('County Officials')) {
+    obj = ""
+    allInfo[4].forEach(function(element) {
+      obj += "Name: " + element.name;
+      obj += "\nPosition: " + element.position;
+      obj += "\nWebsite: " + element.website + "\n\n";
+    })
+    response = {
+      "text": obj
+    }
+  }
+  if (settings.includes('City Officials')) {
+    obj = ""
+    allInfo[6].forEach(function(element) {
+      obj += "Name: " + element.name;
+      obj += "\nPosition: " + element.position;
+      obj += "\nWebsite: " + element.website + "\n\n";
+    })
+    response = {
+      "text": obj
+    }
+  }
+  if (settings.includes('State Propositions')) {
+    obj = ""
+    allInfo[0].forEach(function(element) {
+      obj += "Name: " + element.name;
+      obj += "\nNumber: " + element.number;
+      obj += "\nSubject: " + element.subject;
+      obj += "\nWebsite: " + element.url;
+      obj += "\nDescription: " + element.desc + "\n\n";
+    })
+    console.log(obj)
+    response = {
+      "text": obj
+    }
+
+  }
+  if (settings.includes('County Measures')) {
+    console.log(allInfo[3])
+
+  }
+  if (settings.includes('City Resolutions')) {
+    console.log(allInfo[5])
+
+  }
+
+  return response;
+}
+
+
+async function updateSettings(text) {
+  let response = {}
+  text = text.split(" ").splice(1).join(" ");
+
+  if (settings.indexOf(text) >= 0) {
+    settings.splice(settings.indexOf(text), 1)
+  } else {
+    settings.push(text)
+  }
+
+  await db.collection("users").doc(PSID).update({
+    settings: settings
+  });
+
+  response = {
+    "attachment": {
+      "type": "template",
+      "payload": {
+        "template_type": "button",
+        "text": `Success! Settings now read: \n${settings.join("\n")}`,
+        "buttons": [
+          {
+            "type": "postback",
+            "title": "Continue",
+            "payload": "main"
+          }
+        ]
+      }
+    }
+  }
+  return response
+
+}
+
+
+async function getInfo() {
   if (emailID == "") {
     throw 'User is not logged in. Please log in to continue.';
     return;
   }
 
-  const policies = []
-  const propositions = await db
+  var STprops = []
+  var propositions = await db
     .collection("states")
     .doc("446b8ad0-cec1-11ea-9ce1-c163adabfc4b")
     .collection("propositions");
-  const props = await propositions.get();
-  await props.forEach((doc) => {
-    policies.push({
+  propositions = await propositions.get();
+  await propositions.forEach((doc) => {
+    STprops.push({
       name: doc.data().name,
       number: doc.data().number,
       subject: doc.data().subject,
@@ -375,7 +512,93 @@ async function fdsa() {
       desc: doc.data().desc,
     });
   });
-  return policies
+
+  var STreps = []
+  var officials = await db
+        .collection("states")
+        .doc('446b8ad0-cec1-11ea-9ce1-c163adabfc4b')
+        .collection("officials");
+  var representatives = await officials
+        .doc('45de0690-cec1-11ea-9ce1-c163adabfc4b')
+        .collection("representatives")
+  representatives = await representatives.get()
+  await representatives.forEach(async (doc) => {
+    STreps.push({
+      name: doc.data().name,
+      district: doc.data().district,
+      party: doc.data().party,
+      website: doc.data().website,
+    });
+  });
+  
+  var STsens = []
+  var senators = await officials
+        .doc('45de0690-cec1-11ea-9ce1-c163adabfc4b')
+        .collection("senators")
+  senators = await senators.get()
+  await senators.forEach(async (doc) => {
+    STsens.push({
+      name: doc.data().name,
+      party: doc.data().party,
+      website: doc.data().website,
+    });
+  });
+
+  var COUTmeasures = []
+  const county = await db
+        .collection("counties")
+        .doc('415884a0-cea4-11ea-b45b-c767a5aa3ded')
+  var measures = await county
+        .collection("measures");
+  measures = await measures.get()
+  await measures.forEach((doc) => {
+    COUTmeasures.push({
+      applies: doc.data().applies,
+      subject: doc.data().subject,
+      desc: doc.data().desc,
+    });
+  });
+
+  var COUTofficials = []
+  officials = await county
+        .collection("officials");
+  officials = await officials.get();
+  await officials.forEach((doc) => {
+    COUTofficials.push({
+      name: doc.data().name,
+      position: doc.data().position,
+      website: doc.data().website,
+    });
+  });
+
+  var CITresolutions = []
+  const cities = await db
+        .collection("cities")
+        .doc('5066d2a0-cec0-11ea-a6eb-89274da76583')
+  var resolutions = await cities
+    .collection("resolutions")
+  resolutions = await resolutions.get();
+  await resolutions.forEach((doc) => {
+    CITresolutions.push({
+      name: doc.data().name,
+      number: doc.data().number,
+      url: doc.data().url,
+    });
+  });
+
+  var CITofficials = []
+  officials = await cities
+        .collection("officials");
+  officials = await officials.get();
+  await officials.forEach((doc) => {
+    CITofficials.push({
+      name: doc.data().name,
+      position: doc.data().position,
+      website: doc.data().website,
+    });
+  });
+
+  allInfo = [STprops, STreps, STsens, COUTmeasures, COUTofficials, CITresolutions, CITofficials];
 }
 
 async function fbAuth(loginType) {
@@ -399,6 +622,10 @@ async function fbAuth(loginType) {
           }
         }
       }
+
+      var users = await db.collection("users").doc(PSID)
+      var user = await users.get()
+      settings = user.data().settings
     }).catch(error =>  {
       response = {
         "attachment": {
@@ -439,7 +666,7 @@ async function fbAuth(loginType) {
               {
                 "type": "postback",
                 "title": "Continue",
-                "payload": "main"
+                "payload": "settings"
               }
             ]
           }
