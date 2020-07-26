@@ -1,5 +1,9 @@
 # hackathon
 
+## CivAssist
+
+Increasing Civic Engagement in the Community
+
 ## Build Setup
 
 ```bash
